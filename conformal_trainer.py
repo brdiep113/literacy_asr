@@ -8,6 +8,7 @@ from transformers.generation import GenerationConfig
 from scipy.stats import binom
 import evaluate
 import jiwer
+from conformal_utils import get_lhat
 
 NUM_BEAMS = 5
 
@@ -46,6 +47,7 @@ class ConformalSeq2SeqTrainer(Seq2SeqTrainer):
                          ):
             
             min_wers = []
+            calib_loss_table = []
             # Calibration loop
             for step, inputs in enumerate(dataloader):
                   # Step 1: Predict a set of sentences for each audio file to obtain a set of sentences and their corresponding scores
@@ -68,8 +70,12 @@ class ConformalSeq2SeqTrainer(Seq2SeqTrainer):
 
                   # TO DO: Do we need to apply any transformations here?
                   # Can we vectorize this?
-                  wers = [jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded]
+                  wers = torch.Tensor(jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded)
                   min_wers.append(torch.min(wers))
+                  
+                  # Skip to step 9
+                  # Get proportion of conformal set sentences that have a higher WER than the target
+                  calib_loss_table.append((wers >= self.wer_target).float().sum())
                   
             # Step 5: Verify that WER_target >= MeanMinWER and alpha >= alpha_min
             
@@ -93,7 +99,10 @@ class ConformalSeq2SeqTrainer(Seq2SeqTrainer):
             
             # Step 8: Initailize array from 0 to 1 with step size of precision epsilon
             arr = torch.linspace(0, 1, 1 / self.epsilon)
-            
+
+            # Conformal prediction loss
+            for step , ind
+            get_lhat(WER)
             # Step 9: Use binary search to find 
 
             # loss function
