@@ -3,10 +3,11 @@ import torch
 from torch._tensor import Tensor
 from torch.nn.modules import Module
 from torch.nn import Softmax
-from transformers import Seq2SeqTrainer
+from transformers import Seq2SeqTrainer, WhisperProcessor
 from transformers.generation import GenerationConfig
 from scipy.stats import binom
 import evaluate
+import jiwer
 
 NUM_BEAMS = 5
 
@@ -33,6 +34,8 @@ class ConformalSeq2SeqTrainer(Seq2SeqTrainer):
             self.gen_config.output_scores = True
             self.gen_config.return_dict_in_generate = True
 
+            # Processor
+            self.processor = WhisperProcessor.from_pretrained("openai/whisper-tiny.en")
 
     def calibration_loop(self,
                          dataloader, 
@@ -46,21 +49,27 @@ class ConformalSeq2SeqTrainer(Seq2SeqTrainer):
             # Calibration loop
             for step, inputs in enumerate(dataloader):
                   # Step 1: Predict a set of sentences for each audio file to obtain a set of sentences and their corresponding scores
-                  sentences, scores = self.model.generate(inputs, num_return_sequences = NUM_BEAMS, generation_config = self.gen_config)
+                  data, labels = inputs
+                  gen_output = self.model.generate(data, num_return_sequences = NUM_BEAMS, generation_config = self.gen_config)
+                  gen_sequences, gen_scores = gen_output.sequences, gen_output.scores
+                  transition_scores = self.model.compute_transition_scores(gen_sequences, gen_scores, normalize_logits=True)
+                  scores = transition_scores.sum(axis = 1)
 
-                  # TO DO: Convert output_scores into sentence scores
                   # Step 2: Filter down to k sentences
                   K = self.max_sentences
-                  sentences, scores = sentences[:K], scores[:K]
+                  sentences, scores = gen_sequences[:K], scores[:K]
                   
                   # Step 3: Apply softmax on the top-k scores
-                  scores = Softmax(scores)
+                  scores = torch.nn.functional.softmax(scores, dim=0)
 
                   # Step 4: Compute the WER array for each audio.
-
                   # TO DO: references needs to be the labels
-                  wer = self.wer.compute(predictions=sentences, references=inputs)
-                  min_wers.extend(wer.min(axis=1))
+                  decoded = self.processor.batch_decode(sentences, skip_special_tokens=True)
+
+                  # TO DO: Do we need to apply any transformations here?
+                  # Can we vectorize this?
+                  wers = [jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded]
+                  min_wers.append(torch.min(wers))
                   
             # Step 5: Verify that WER_target >= MeanMinWER and alpha >= alpha_min
             
@@ -88,8 +97,6 @@ class ConformalSeq2SeqTrainer(Seq2SeqTrainer):
             # Step 9: Use binary search to find 
 
             # loss function
-            
-            arr
           
           
     def calibrate(self, 
