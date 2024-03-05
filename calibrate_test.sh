@@ -17,4 +17,4 @@ source ~/std23/bin/activate
 # Login to W&B to log metrics
 wandb login $API_KEY
 
-python calibrate_test.py --projectname test_calibration --token $HUGGINGFACE_TOKEN --sentences 10
+python calibrate_test.py --projectname test_calibration --token $HUGGINGFACE_TOKEN --beams 10 --sentences 10

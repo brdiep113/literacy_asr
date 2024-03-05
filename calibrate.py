@@ -1,23 +1,18 @@
 import torch
-from torch._tensor import Tensor
-from torch.nn.modules import Module
-from torch.nn import Softmax
-from transformers import Seq2SeqTrainer, WhisperProcessor
 from transformers.generation import GenerationConfig
 from tqdm import tqdm
 from scipy.stats import binom
 import jiwer
 from conformal_utils import get_lhat
 
-NUM_BEAMS = 10
 
-def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alpha=0.2, delta=0.1, max_sentences=5):
+def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alpha=0.2, delta=0.1, num_beams=5, max_sentences=5):
 
     calib_loss_table = torch.Tensor([])
     for inputs in tqdm(data_loader):
         # Step 1: Predict a set of sentences for each audio file to obtain a set of sentences and their corresponding scores
         data, labels = inputs
-        gen_output = model.generate(data, num_return_sequences=NUM_BEAMS, num_beams=NUM_BEAMS, output_scores=True, return_dict_in_generate=True)
+        gen_output = model.generate(data, num_return_sequences=num_beams, num_beams=num_beams, output_scores=True, return_dict_in_generate=True)
         gen_sequences, gen_scores = gen_output.sequences, gen_output.scores
         transition_scores = model.compute_transition_scores(gen_sequences, gen_scores, normalize_logits=True)
         scores = transition_scores.sum(axis = 1)
@@ -47,13 +42,13 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
     return lhat
 
 
-def conformal_test(model, processor, test_loader, lhat, wer_target, max_sentences):
+def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beams=5, max_sentences=5):
     loss_table = torch.Tensor([])
     conformal_set_sizes = torch.Tensor([])
 
     for inputs in tqdm(test_loader):
         data, labels = inputs
-        gen_output = model.generate(data, num_return_sequences=NUM_BEAMS, num_beams=NUM_BEAMS, output_scores=True, return_dict_in_generate=True)
+        gen_output = model.generate(data, num_return_sequences=num_beams, num_beams=num_beams, output_scores=True, return_dict_in_generate=True)
         gen_sequences, gen_scores = gen_output.sequences, gen_output.scores
         transition_scores = model.compute_transition_scores(gen_sequences, gen_scores, normalize_logits=True)
         scores = transition_scores.sum(axis = 1)

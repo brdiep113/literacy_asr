@@ -26,6 +26,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("-n", "--projectname", help="Name to log this run as with wandb")
     parser.add_argument("-t", "--token", help="User Access Token")
+    parser.add_argument("-b", "--beams", metavar='N', type=int, nargs='+', help="Number of beams")
     parser.add_argument("-s", "--sentences", metavar='N', type=int, nargs='+', help="Number of sentences")
 
     args = parser.parse_args()
@@ -62,6 +63,7 @@ if __name__ == "__main__":
                      epsilon=0.0001,
                      alpha=0.2,
                      delta=0.1,
+                     num_beams=args.beams
                      max_sentences=args.sentences
                      )
     
@@ -70,6 +72,7 @@ if __name__ == "__main__":
                                                    processor=processor,
                                                    data_loader=evalDataLoader,
                                                    wer_target=0.2,
+                                                   num_beams=args.beams
                                                    max_sentences=args.sentences
                                                    )
     
