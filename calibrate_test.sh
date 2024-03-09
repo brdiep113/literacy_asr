@@ -3,7 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --gpus=per-node=p100:4
 #SBATCH --ntasks-per-node=4
-#SBATCH --time=1:0:0
+#SBATCH --time=1:00:00
 #SBATCH --mail-user=<brdiep@mail.ubc.ca>
 #SBATCH --mail-type=ALL
 
