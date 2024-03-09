@@ -42,15 +42,36 @@ if __name__ == "__main__":
         }
     )
     
-    # Create data loaders
-    data = load_from_disk("~/scratch/brdiep/cv_en")
-    calibDataLoader = construct_dataloader(data, "validation") 
-    evalDataLoader = construct_dataloader(data, "test")
-
-    # Load models
+    # Load data
     feature_extractor = WhisperFeatureExtractor.from_pretrained("openai/whisper-small")
+    tokenizer = WhisperTokenizer.from_pretrained("openai/whisper-small", language="en", task="transcribe")
     processor = WhisperProcessor.from_pretrained("openai/whisper-small", language="en", task="transcribe")
 
+    def prepare_dataset(batch):
+        # load and resample audio data from 48 to 16kHz
+        audio = batch["audio"]
+        
+        # compute log-Mel input features from input audio array 
+        batch["input_features"] = feature_extractor(audio["array"], sampling_rate=audio["sampling_rate"]).input_features[0]
+        
+        # encode target text to label ids 
+        batch["labels"] = tokenizer(batch["sentence"]).input_ids
+        
+        return batch
+
+    token = args.token
+    cv = DatasetDict()
+    cv["validation"] = load_dataset("mozilla-foundation/common_voice_13_0", "en", split="validation", token=token, trust_remote_code=True, cache_dir="~/scratch/brdiep/.cache/huggingface/datasets")
+    cv["test"] = load_dataset("mozilla-foundation/common_voice_13_0", "en", split="test", token=token, trust_remote_code=True, cache_dir="~/scratch/brdiep/.cache/huggingface/datasets")
+    cv = cv.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "path", "segment", "up_votes"])
+    cv = cv.cast_column("audio", Audio(sampling_rate=16000))
+    cv = cv.map(prepare_dataset, remove_columns=cv.column_names["train"], num_proc=4)
+    # Create data loaders
+    # data = load_from_disk("~/scratch/brdiep/cv_en")
+    calibDataLoader = construct_dataloader(cv, "validation") 
+    evalDataLoader = construct_dataloader(cv, "test")
+
+    # Load models
     model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small")
     model.config.forced_decoder_ids = None
     model.config.suppress_tokens = []
