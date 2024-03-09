@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH --mem=64G
-#SBATCH --gpus=per-node=1
+#SBATCH --nodes=1
+#SBATCH --gpus=per-node=p100:1
 #SBATCH --ntasks-per-node=1
 #SBATCH --time=1:0:0
 #SBATCH --mail-user=<brdiep@mail.ubc.ca>
