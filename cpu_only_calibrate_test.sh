@@ -6,6 +6,7 @@
 #SBATCH --mail-user=<brdiep@mail.ubc.ca>
 #SBATCH --mail-type=ALL
 
+cd ~/$project
 git clone https://github.com/brdiep113/literacy_asr
 cd ~/$project/literacy_asr
 
