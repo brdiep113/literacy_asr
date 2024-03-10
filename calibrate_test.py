@@ -84,7 +84,7 @@ if __name__ == "__main__":
                      epsilon=0.0001,
                      alpha=0.2,
                      delta=0.1,
-                     num_beams=args.beams
+                     num_beams=args.beams,
                      max_sentences=args.sentences
                      )
     
@@ -93,7 +93,7 @@ if __name__ == "__main__":
                                                    processor=processor,
                                                    data_loader=evalDataLoader,
                                                    wer_target=0.2,
-                                                   num_beams=args.beams
+                                                   num_beams=args.beams,
                                                    max_sentences=args.sentences
                                                    )
     
