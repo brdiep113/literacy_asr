@@ -6,7 +6,7 @@
 #SBATCH --mail-user=<brdiep@mail.ubc.ca>
 #SBATCH --mail-type=ALL
 
-cd ~/$project/whisper-test
+cd ~/$project/literacy_asr
 
 # Set up modules/virtual environment
 module purge
