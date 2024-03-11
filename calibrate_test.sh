@@ -1,14 +1,12 @@
 #!/bin/bash
 #SBATCH --mem=64G
 #SBATCH --nodes=1
-#SBATCH --gpus-per-node=p100:4
-#SBATCH --ntasks-per-node=4
+#SBATCH --gpus-per-node=p100l:1
+#SBATCH --ntasks-per-node=1
 #SBATCH --time=1:00:00
 #SBATCH --mail-user=<brdiep@mail.ubc.ca>
 #SBATCH --mail-type=ALL
 
-cd ~/$project
-git clone https://github.com/brdiep113/literacy_asr
 cd ~/$project/literacy_asr
 
 # Set up modules/virtual environment

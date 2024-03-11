@@ -30,7 +30,8 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--sentences", metavar='N', type=int, nargs='+', help="Number of sentences")
 
     args = parser.parse_args()
-    
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
     os.environ["WANDB_PROJECT"] = args.projectname
     os.environ["WANDB_LOG_MODEL"] = "checkpoint"
 
@@ -75,6 +76,7 @@ if __name__ == "__main__":
     model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small")
     model.config.forced_decoder_ids = None
     model.config.suppress_tokens = []
+    model.to(device)
 
     # Calibrate on calibration set
     lhat = calibrate(model=model,
