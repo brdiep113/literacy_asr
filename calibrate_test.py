@@ -62,14 +62,12 @@ if __name__ == "__main__":
 
     token = args.token
     cv = DatasetDict()
-    cv["validation"] = load_dataset("mozilla-foundation/common_voice_13_0", "en", split="validation", 
+    cv["validation"] = load_dataset("mozilla-foundation/common_voice_13_0", "en", split="validation[:10%]", 
                                     token=token, trust_remote_code=True, 
-                                    cache_dir="~/scratch/brdiep/.cache/huggingface/datasets",
-                                    streaming=True)
-    cv["test"] = load_dataset("mozilla-foundation/common_voice_13_0", "en", split="test",
+                                    cache_dir="~/scratch/brdiep/.cache/huggingface/datasets")
+    cv["test"] = load_dataset("mozilla-foundation/common_voice_13_0", "en", split="test[:10%]",
                               token=token, trust_remote_code=True, 
-                              cache_dir="~/scratch/brdiep/.cache/huggingface/datasets",
-                              streaming=True)
+                              cache_dir="~/scratch/brdiep/.cache/huggingface/datasets")
     cv = cv.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "path", "segment", "up_votes"])
     cv = cv.cast_column("audio", Audio(sampling_rate=16000))
     cv = cv.map(prepare_dataset, remove_columns=cv.column_names["train"], num_proc=4)
