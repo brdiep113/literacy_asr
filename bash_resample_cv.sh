@@ -13,4 +13,4 @@ module purge
 module load StdEnv/2023 python/3.11 scipy-stack gcc/12.3 arrow/14 cuda
 source ~/std23/bin/activate
 
-python resample_cv.sh --code en --set dev --transcript_path ~/scratch/common_voice/transcript/en/dev.tsv --outdir ~/scratch/processed_common_voice/ --dataset_path ~/scratch/common_voice/audio/
+python resample_cv.py --code en --set dev --transcript_path ~/scratch/common_voice/transcript/en/dev.tsv --outdir ~/scratch/processed_common_voice/ --dataset_path ~/scratch/common_voice/audio/
