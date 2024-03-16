@@ -6,7 +6,7 @@
 #SBATCH --mail-user=<brdiep@mail.ubc.ca>
 #SBATCH --mail-type=ALL
 
-cd $project/literacy_asr
+cd ~/projects/def-lingjzhu/brdiep/literacy_asr
 
 # Set up modules/virtual environment
 module purge
