@@ -24,7 +24,6 @@ if __name__ == "__main__":
         prog="Whisper Tutorial",
         description="Sample tutorial for running Whisper on Cedar and logging metrics with wandb"
     )
-    parser.add_argument("-t", "--token", help="User Access Token")
     parser.add_argument("-b", "--beams", metavar='N', type=int, nargs='+', help="Number of beams")
     parser.add_argument("-s", "--sentences", metavar='N', type=int, nargs='+', help="Number of sentences")
 
