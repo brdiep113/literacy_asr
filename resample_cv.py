@@ -75,6 +75,7 @@ if __name__ == "__main__":
 
         outfile = os.path.join(outdir, file, set, audio_file)
         if not os.path.exists(outfile):
+            os.mkdir(os.path.join(outdir, file, set))
             sink = wds.TarWriter(outfile)
 
             tmp_folder = os.path.join(audio_path,audio_file.replace('.tar',''))
