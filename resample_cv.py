@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
         print("Processing %s"%audio_file)
 
-        outfile = os.path.join(outdir, file, set, audio_file)
+        outfile = os.path.join(outdir, file+"--"+audio_file)
         if not os.path.exists(outfile):
             sink = wds.TarWriter(outfile)
 
