@@ -37,14 +37,14 @@ if __name__ == "__main__":
 
     # Get data loaders
     valid_set = (
-        wds.WebDataset("~/scratch/processed_common_voice/en--en_dev_0.tar")
+        wds.WebDataset("/home/brdiep/scratch/processed_common_voice/en--en_dev_0.tar")
         .decode()
         .shuffle(size=1000)
         .batched(batchsize=10)
     )
 
     test_set = (
-        wds.WebDataset("~/scratch/processed_common_voice/en--en_test_0.tar")
+        wds.WebDataset("/home/brdiep/scratch/processed_common_voice/en--en_test_0.tar")
         .decode()
         .shuffle(size=1000)
         .batched(batchsize=10)
