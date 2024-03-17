@@ -40,7 +40,6 @@ if __name__ == "__main__":
         wds.WebDataset("/home/brdiep/scratch/processed_common_voice/en--en_dev_0.tar")
         .decode()
         .shuffle(size=1000)
-        .batched(batchsize=1)
         .to_tuple('mp3.pth', 'mp3.txt')
     )
 
@@ -48,7 +47,6 @@ if __name__ == "__main__":
         wds.WebDataset("/home/brdiep/scratch/processed_common_voice/en--en_test_0.tar")
         .decode()
         .shuffle(size=1000)
-        .batched(batchsize=1)
         .to_tuple('mp3.pth', 'mp3.txt')
     )
 
