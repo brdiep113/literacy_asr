@@ -40,14 +40,14 @@ if __name__ == "__main__":
         wds.WebDataset("~/scratch/processed_common_voice/en--en_dev_0.tar")
         .decode()
         .shuffle(size=1000)
-        .batch(batchsize=10)
+        .batched(batchsize=10)
     )
 
     test_set = (
         wds.WebDataset("~/scratch/processed_common_voice/en--en_test_0.tar")
         .decode()
         .shuffle(size=1000)
-        .batch(batchsize=10)
+        .batched(batchsize=10)
     )
 
     # Load models
