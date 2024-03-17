@@ -53,7 +53,6 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
     for inputs in tqdm(test_loader):
         data, labels = inputs
         data = data.to(device)
-        labels = labels.to(device)
         
         gen_output = model.generate(data, num_return_sequences=num_beams, num_beams=num_beams, output_scores=True, return_dict_in_generate=True)
         gen_sequences, gen_scores = gen_output.sequences, gen_output.scores
