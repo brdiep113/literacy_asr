@@ -24,8 +24,8 @@ if __name__ == "__main__":
         prog="Whisper Tutorial",
         description="Sample tutorial for running Whisper on Cedar and logging metrics with wandb"
     )
-    parser.add_argument("-b", "--beams", metavar='N', type=int, nargs='+', help="Number of beams")
-    parser.add_argument("-s", "--sentences", metavar='N', type=int, nargs='+', help="Number of sentences")
+    parser.add_argument("-b", "--beams", metavar='N', type=int, nargs='?', help="Number of beams")
+    parser.add_argument("-s", "--sentences", metavar='N', type=int, nargs='?', help="Number of sentences")
 
     args = parser.parse_args()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
