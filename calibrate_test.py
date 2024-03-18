@@ -97,7 +97,7 @@ if __name__ == "__main__":
     # Evaluate empirical coverage alpha_hat and mean conformal prediction set size
     alpha_hat, mean_conformal_set = conformal_test(model=model,
                                                    processor=processor,
-                                                   data_loader=evalDataLoader,
+                                                   test_loader=evalDataLoader,
                                                    wer_target=0.2,
                                                    num_beams=args.beams,
                                                    max_sentences=args.sentences
