@@ -12,7 +12,10 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
     calib_loss_table = torch.Tensor([])
     for inputs in tqdm(data_loader):
         # Step 1: Predict a set of sentences for each audio file to obtain a set of sentences and their corresponding scores
-        data, labels = inputs
+        wav, labels = inputs
+        data = processor(
+            wav, sampling_rate=16000, return_tensors="pt"
+            ).input_features
         data = data.to(device)
 
         gen_output = model.generate(data, num_return_sequences=num_beams, num_beams=num_beams, output_scores=True, return_dict_in_generate=True)
@@ -50,7 +53,10 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
     conformal_set_sizes = torch.Tensor([])
 
     for inputs in tqdm(test_loader):
-        data, labels = inputs
+        wav, labels = inputs
+        data = processor(
+            wav, sampling_rate=16000, return_tensors="pt"
+            ).input_features
         data = data.to(device)
         
         gen_output = model.generate(data, num_return_sequences=num_beams, num_beams=num_beams, output_scores=True, return_dict_in_generate=True)
