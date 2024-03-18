@@ -14,7 +14,6 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
         # Step 1: Predict a set of sentences for each audio file to obtain a set of sentences and their corresponding scores
         data, labels = inputs
         data = data.to(device)
-        labels = labels.to(device)
 
         gen_output = model.generate(data, num_return_sequences=num_beams, num_beams=num_beams, output_scores=True, return_dict_in_generate=True)
         gen_sequences, gen_scores = gen_output.sequences, gen_output.scores
