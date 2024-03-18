@@ -33,7 +33,7 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
         # Step 4: Compute the WER array for each audio.
         # TO DO: references needs to be the labels
         decoded = processor.batch_decode(sentences, skip_special_tokens=True)
-        wers = torch.Tensor(jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded)
+        wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
 
         # Get proportion of conformal set sentences that have a higher WER than the target
         calib_loss_table = torch.cat(calib_loss_table, (wers >= wer_target).float().sum(), dim=1)
@@ -77,7 +77,7 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
         conformal_set = sentences[:index + 1]
         conformal_set_sizes = torch.cat(conformal_set_sizes, torch.Tensor([index + 1]), dim=0)
         decoded = processor.batch_decode(conformal_set, skip_special_tokens=True)
-        wers = torch.Tensor(jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded)
+        wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
         loss_table = torch.cat(loss_table, (wers >= wer_target).float().sum(), dim=0)
 
     alpha_hat = loss_table.sum() / len(test_loader.dataset)
