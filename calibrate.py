@@ -40,7 +40,7 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
 
 
     # Step 8: Initailize array from 0 to 1 with step size of precision epsilon
-    lambdas = torch.linspace(0, 1, 1 / epsilon)
+    lambdas = torch.linspace(0.0, 1.0, int(1 / epsilon))
 
     # Step 9: Get optimal lhat
     lhat = get_lhat(calib_loss_table=calib_loss_table, lambdas=lambdas, alpha=alpha, B=1)
