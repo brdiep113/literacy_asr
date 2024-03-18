@@ -19,8 +19,8 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
         data = data.to(device)
 
         gen_output = model.generate(data, num_return_sequences=num_beams, num_beams=num_beams, output_scores=True, return_dict_in_generate=True)
-        gen_sequences, gen_scores = gen_output.sequences, gen_output.scores
-        transition_scores = model.compute_transition_scores(gen_sequences, gen_scores, normalize_logits=True)
+        gen_sequences, gen_scores, gen_beam_indices = gen_output.sequences, gen_output.scores, gen_output.beam_indices
+        transition_scores = model.compute_transition_scores(gen_sequences, gen_scores, gen_beam_indices, normalize_logits=True)
         scores = transition_scores.sum(axis = 1)
 
         # Step 2: Filter down to k sentences
@@ -60,8 +60,8 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
         data = data.to(device)
         
         gen_output = model.generate(data, num_return_sequences=num_beams, num_beams=num_beams, output_scores=True, return_dict_in_generate=True)
-        gen_sequences, gen_scores = gen_output.sequences, gen_output.scores
-        transition_scores = model.compute_transition_scores(gen_sequences, gen_scores, normalize_logits=True)
+        gen_sequences, gen_scores, gen_beam_indices = gen_output.sequences, gen_output.scores, gen_output.beam_indices
+        transition_scores = model.compute_transition_scores(gen_sequences, gen_scores, gen_beam_indices, normalize_logits=True)
         scores = transition_scores.sum(axis = 1)
 
         K = max_sentences
