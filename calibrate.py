@@ -75,7 +75,7 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
         cum_scores = torch.cumsum(scores, dim=0)
         index = torch.nonzero(cum_scores >= lhat)[0] + 1
         conformal_set = sentences[:index]
-        conformal_set_sizes = torch.cat(conformal_set_sizes, index, dim=0)
+        conformal_set_sizes = torch.cat((conformal_set_sizes, index).unsqueeze(0), dim=0)
         decoded = processor.batch_decode(conformal_set, skip_special_tokens=True)
         wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
         loss_table = torch.cat((loss_table, (wers >= wer_target).float().sum().unsqueeze(0)), dim=0)
