@@ -57,16 +57,18 @@ if __name__ == "__main__":
     model.to(device)
 
     # Calibrate on calibration set
-    lhat = calibrate(model=model,
-                     processor=processor,
-                     data_loader=valid_set,
-                     wer_target=0.2,
-                     epsilon=0.0001,
-                     alpha=0.2,
-                     delta=0.1,
-                     num_beams=args.beams,
-                     max_sentences=args.sentences
-                     )
+    # lhat = calibrate(model=model,
+    #                  processor=processor,
+    #                  data_loader=valid_set,
+    #                  wer_target=0.2,
+    #                  epsilon=0.0001,
+    #                  alpha=0.2,
+    #                  delta=0.1,
+    #                  num_beams=args.beams,
+    #                  max_sentences=args.sentences
+    #                  )
+    
+    lhat = 0.2
     
     # Evaluate empirical coverage alpha_hat and mean conformal prediction set size
     alpha_hat, mean_conformal_set = conformal_test(model=model,

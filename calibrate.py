@@ -73,9 +73,9 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
         # For all cases that pass the WER threshold, add the probability of the corresponding softmax scores together
         # To get the probability of utterances being higher than our WER threshold
         cum_scores = torch.cumsum(scores, dim=0)
-        index = torch.nonzero(cum_scores >= lhat)
-        conformal_set = sentences[:index + 1]
-        conformal_set_sizes = torch.cat(conformal_set_sizes, torch.Tensor([index + 1]), dim=0)
+        index = torch.nonzero(cum_scores >= lhat)[0] + 1
+        conformal_set = sentences[:index]
+        conformal_set_sizes = torch.cat(conformal_set_sizes, index, dim=0)
         decoded = processor.batch_decode(conformal_set, skip_special_tokens=True)
         wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
         loss_table = torch.cat((loss_table, (wers >= wer_target).float().sum().unsqueeze(0)), dim=0)
