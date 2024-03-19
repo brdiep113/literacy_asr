@@ -80,7 +80,7 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
         wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
         loss_table = torch.cat((loss_table, (wers >= wer_target).float().sum().unsqueeze(0)), dim=0)
 
-    alpha_hat = loss_table.sum() / len(test_loader.dataset)
+    alpha_hat = loss_table.sum() / loss_table.shape[0]
     mean_conformal_set = conformal_set_sizes.mean()
 
     return alpha_hat, mean_conformal_set
