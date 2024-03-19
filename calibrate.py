@@ -50,7 +50,7 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
 
 def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beams=5, max_sentences=5):
     loss_table = torch.Tensor([])
-    conformal_set_sizes = torch.Tensor([])
+    conformal_set_sizes = torch.Tensor([]).to(device)
 
     for inputs in tqdm(test_loader):
         wav, labels = inputs
