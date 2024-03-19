@@ -41,14 +41,14 @@ if __name__ == "__main__":
         .decode()
         .shuffle(size=1000)
         .to_tuple('mp3.pth', 'mp3.txt')
-    ).select((range(100)))
+    )
 
     test_set = (
         wds.WebDataset("/home/brdiep/scratch/processed_common_voice/en--en_test_0.tar")
         .decode()
         .shuffle(size=1000)
         .to_tuple('mp3.pth', 'mp3.txt')
-    ).select((range(100)))
+    )
 
     # Load models
     model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small", local_files_only=True)
