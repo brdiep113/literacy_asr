@@ -75,7 +75,8 @@ if __name__ == "__main__":
                                                    lhat=lhat,
                                                    wer_target=0.2,
                                                    num_beams=args.beams,
-                                                   max_sentences=args.sentences
+                                                   max_sentences=args.sentences,
+                                                   save_output="/home/brdiep/scratch/calibrate_run_output.csv"
                                                    )
     
     print(lhat)

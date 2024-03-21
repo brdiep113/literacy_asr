@@ -1,3 +1,4 @@
+import pandas as pd
 import torch
 from transformers.generation import GenerationConfig
 from tqdm import tqdm
@@ -48,9 +49,10 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
     return lhat
 
 
-def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beams=5, max_sentences=5):
+def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beams=5, max_sentences=5, save_output=None):
     loss_table = torch.Tensor([])
     conformal_set_sizes = torch.Tensor([]).to(device)
+    log_answers = []
 
     for inputs in tqdm(test_loader):
         wav, labels = inputs
@@ -80,7 +82,19 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
         wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
         loss_table = torch.cat((loss_table, (wers >= wer_target).float().sum().unsqueeze(0)), dim=0)
 
+        # Log set of answers
+        log_sample = {
+            "ground_truth": labels,
+            "conformal_set_size": index.item(), 
+            "conformal_set": decoded}
+        log_answers.append(log_sample)
+
     alpha_hat = loss_table.sum() / loss_table.shape[0]
     mean_conformal_set = conformal_set_sizes.mean()
+
+    # Save answers
+    if save_output:
+        df = pd.DataFrame(log_answers)
+        df.to_csv(save_output, index=False)
 
     return alpha_hat, mean_conformal_set
