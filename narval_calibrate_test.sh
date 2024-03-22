@@ -14,4 +14,4 @@ module purge
 module load StdEnv/2023 python/3.11 scipy-stack gcc/12.3 arrow/14 cuda
 source ~/std23/bin/activate
 
-python narval_calibrate_test.py --beams 10 --sentences 10 --wer 0.2
+python narval_calibrate_test.py --beams 5 --sentences 5 --wer 0.2
