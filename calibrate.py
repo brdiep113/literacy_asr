@@ -86,7 +86,8 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
         log_sample = {
             "ground_truth": labels,
             "conformal_set_size": index.item(), 
-            "conformal_set": decoded}
+            "conformal_set": decoded,
+            "wers": wers[:index].tolist()}
         log_answers.append(log_sample)
 
     alpha_hat = loss_table.sum() / loss_table.shape[0]
