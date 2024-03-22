@@ -37,7 +37,7 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
         wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
 
         # Get proportion of conformal set sentences that have a higher WER than the target
-        pabove_wer_target = (wers >= wer_target.float().mean().unsqueeze(0))
+        pabove_wer_target = ((wers >= wer_target).float().mean().unsqueeze(0))
         if pabove_wer_target != 0:
             calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([1.])), dim=0)
         else:
@@ -87,7 +87,7 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
         wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
 
         # Get proportion of conformal set sentences that have a higher WER than the target
-        pabove_wer_target = (wers >= wer_target.float().mean().unsqueeze(0))
+        pabove_wer_target = ((wers >= wer_target).float().mean().unsqueeze(0))
 
         # If all sentences have WER <= WER_target
         if pabove_wer_target != 0:
