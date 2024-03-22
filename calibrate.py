@@ -37,7 +37,7 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
         wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
 
         # Get proportion of conformal set sentences that have a higher WER than the target
-        calib_loss_table = torch.cat((calib_loss_table, (wers >= wer_target).float().sum().unsqueeze(0)), dim=0)
+        calib_loss_table = torch.cat((calib_loss_table, (wers >= wer_target).float().mean().unsqueeze(0)), dim=0)
 
 
     # Step 8: Initailize array from 0 to 1 with step size of precision epsilon
@@ -80,7 +80,7 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
         conformal_set_sizes = torch.cat((conformal_set_sizes, index.unsqueeze(0)), dim=0)
         decoded = processor.batch_decode(conformal_set, skip_special_tokens=True)
         wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
-        loss_table = torch.cat((loss_table, (wers >= wer_target).float().sum().unsqueeze(0)), dim=0)
+        loss_table = torch.cat((loss_table, (wers >= wer_target).float().mean().unsqueeze(0)), dim=0)
 
         # Log set of answers
         log_sample = {
