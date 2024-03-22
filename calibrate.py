@@ -37,14 +37,19 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
         wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
 
         # Get proportion of conformal set sentences that have a higher WER than the target
-        calib_loss_table = torch.cat((calib_loss_table, (wers >= wer_target).float().mean().unsqueeze(0)), dim=0)
-
+        pabove_wer_target = (wers >= wer_target.float().mean().unsqueeze(0))
+        if pabove_wer_target != 0:
+            calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([1.])), dim=0)
+        else:
+            calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([0.])), dim=0)
 
     # Step 8: Initailize array from 0 to 1 with step size of precision epsilon
     lambdas = torch.linspace(0.0, 1.0, int(1 / epsilon))
 
     # Step 9: Get optimal lhat
-    lhat = get_lhat(calib_loss_table=calib_loss_table, lambdas=lambdas, alpha=alpha, B=1)
+    # Table must be sorted from lowest to highest loss
+    sorted_calib_loss_table, _ = torch.sort(calib_loss_table)
+    lhat = get_lhat(calib_loss_table=sorted_calib_loss_table, lambdas=lambdas, alpha=alpha, B=1)
 
     return lhat
 
@@ -80,7 +85,15 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
         conformal_set_sizes = torch.cat((conformal_set_sizes, index.unsqueeze(0)), dim=0)
         decoded = processor.batch_decode(conformal_set, skip_special_tokens=True)
         wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
-        loss_table = torch.cat((loss_table, (wers >= wer_target).float().mean().unsqueeze(0)), dim=0)
+
+        # Get proportion of conformal set sentences that have a higher WER than the target
+        pabove_wer_target = (wers >= wer_target.float().mean().unsqueeze(0))
+
+        # If all sentences have WER <= WER_target
+        if pabove_wer_target != 0:
+            loss_table = torch.cat((loss_table, torch.Tensor([1.])), dim=0)
+        else:
+            loss_table = torch.cat((loss_table, torch.Tensor([0.])), dim=0)
 
         # Log set of answers
         log_sample = {
