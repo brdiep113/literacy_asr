@@ -94,9 +94,9 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
 
         # # If all sentences have WER <= WER_target
         if pabove_wer_target == 0:
-            calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([0.])), dim=0)
+            loss_table = torch.cat((loss_table, torch.Tensor([0.])), dim=0)
         else:
-            calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([1.])), dim=0)
+            loss_table = torch.cat((loss_table, torch.Tensor([1.])), dim=0)
 
         # Log set of answers
         log_sample = {
