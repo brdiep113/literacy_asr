@@ -38,12 +38,12 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
 
         # Get proportion of conformal set sentences that have a higher WER than the target
         pabove_wer_target = ((wers >= wer_target).float().mean().unsqueeze(0))
-        calib_loss_table = torch.cat((calib_loss_table, pabove_wer_target), dim=0)
+        # calib_loss_table = torch.cat((calib_loss_table, pabove_wer_target), dim=0)
 
-        # if pabove_wer_target != 0:
-        #     calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([1.])), dim=0)
-        # else:
-        #     calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([0.])), dim=0)
+        if pabove_wer_target == 0:
+            calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([0.])), dim=0)
+        else:
+            calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([1.])), dim=0)
 
     # Step 8: Initailize array from 0 to 1 with step size of precision epsilon
     lambdas = torch.linspace(0.0, 1.0, int(1 / epsilon))
@@ -90,13 +90,13 @@ def conformal_test(model, processor, test_loader, lhat, wer_target=0.2, num_beam
 
         # Get proportion of conformal set sentences that have a higher WER than the target
         pabove_wer_target = ((wers >= wer_target).float().mean().unsqueeze(0))
-        loss_table = torch.cat((loss_table, pabove_wer_target), dim=0)
+        # loss_table = torch.cat((loss_table, pabove_wer_target), dim=0)
 
         # # If all sentences have WER <= WER_target
-        # if pabove_wer_target != 0:
-        #     loss_table = torch.cat((loss_table, torch.Tensor([1.])), dim=0)
-        # else:
-        #     loss_table = torch.cat((loss_table, torch.Tensor([0.])), dim=0)
+        if pabove_wer_target == 0:
+            calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([0.])), dim=0)
+        else:
+            calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([1.])), dim=0)
 
         # Log set of answers
         log_sample = {
