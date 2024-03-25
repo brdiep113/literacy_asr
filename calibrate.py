@@ -59,7 +59,7 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
     # Step 9: Get optimal lhat
     wers_mask = wers_table > wer_target
     wers_mask = wers_mask.to(device)
-    lhat = find_lhat(wers_mask=wers_mask, scores=scores_table, lambdas=lambdas, alpha=alpha, delta=delta, B=1)
+    lhat = find_lhat(wers_mask=wers_mask, scores=scores_table, lambdas=lambdas, alpha=alpha, delta=delta, device=device, B=1)
     # Table must be sorted from lowest to highest loss
     # sorted_calib_loss_table, _ = torch.sort(calib_loss_table)
     # lhat = get_lhat(calib_loss_table=sorted_calib_loss_table, lambdas=lambdas, alpha=alpha, B=1)

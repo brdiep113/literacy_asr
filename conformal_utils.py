@@ -7,22 +7,22 @@ def get_lhat(calib_loss_table, lambdas, alpha, B=1):
     lhat_idx = max(np.argmax(((n/(n+1)) * rhat + B/(n+1) ) >= alpha) - 1, 0) # Can't be -1.
     return lambdas[lhat_idx]
 
-def get_rhat(wers_mask, scores, lambd):
+def get_rhat(wers_mask, scores, lambd, device):
     # Get number of samples in calibration
     n = scores.shape[0]
 
     # Get cumulative scores of sentences
-    cum_scores = torch.cumsum(scores, dim=1)
+    cum_scores = torch.cumsum(scores, dim=1).to(device=device)
 
     # For each sample, find number of sentences before cumulative scores of sentences >= lambda
-    num_sentences = (cum_scores >= lambd).float().argmax(dim=1)
+    num_sentences = (cum_scores >= lambd).float().argmax(dim=1).to(device=device)
 
     # Find all sets that necessarily include a sentence with WER above target
     # Note since if a sentence is found to be above the WER target, all sets including that
     # sentence will also necessarily include a sentence above WER target
     # This is equivalent to finding the first index where we find a sentence above WER target
     # and setting all sets after it to also be above WER target
-    first_above_wer = (wers_mask.float()).argmax(dim=1)
+    first_above_wer = (wers_mask.float()).argmax(dim=1).to(device)
     sets_above_wer = torch.arange(wers_mask.size(1)).unsqueeze(0) >= first_above_wer.unsqueeze(1)
 
     # Find if sets containing just the number of sentences such that their cumulative score >= lambda
@@ -34,13 +34,13 @@ def get_rhat(wers_mask, scores, lambd):
 
     return rhat
 
-def find_lhat(wers_mask, scores, lambdas, alpha, delta, B=1):
+def find_lhat(wers_mask, scores, lambdas, alpha, delta, device, B=1):
     """Binary search over the values of lambda to find the maximum rhat that satisfies the threshold."""
     n = wers_mask.shape[0]
     l, r = 0, len(lambdas) - 1
     threshold = ((n + 1) / n) * (alpha - np.sqrt(-np.log(delta) / 2 * n) - (B / n))
-    rhat_l = get_rhat(wers_mask, scores, lambdas[l])
-    rhat_r = get_rhat(wers_mask, scores, lambdas[r])
+    rhat_l = get_rhat(wers_mask, scores, lambdas[l], device)
+    rhat_r = get_rhat(wers_mask, scores, lambdas[r], device)
 
     # Since rhat is non-increasing for all values of lambda...
 
@@ -56,7 +56,7 @@ def find_lhat(wers_mask, scores, lambdas, alpha, delta, B=1):
         
         # Then check the midpoint
         mid = l + r // 2
-        mid_rhat = get_rhat(wers_mask, scores, lambdas[mid])
+        mid_rhat = get_rhat(wers_mask, scores, lambdas[mid], device)
 
         # If the midpoint is greater than the threshold, we must keep checking larger lambda values
         if mid_rhat > threshold:
