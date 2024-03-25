@@ -11,7 +11,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alpha=0.2, delta=0.1, num_beams=5, max_sentences=5):
 
     calib_loss_table = torch.Tensor([])
-    wers_table = torch.Tensor([]).to(device)
+    wers_table = torch.Tensor([])
     scores_table = torch.Tensor([]).to(device)
 
     for inputs in tqdm(data_loader):
