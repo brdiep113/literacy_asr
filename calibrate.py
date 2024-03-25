@@ -13,7 +13,7 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
     calib_loss_table = torch.Tensor([])
     wers_table = torch.Tensor([])
     scores_table = torch.Tensor([]).to(device)
-
+    i = 0
     for inputs in tqdm(data_loader):
         # Step 1: Predict a set of sentences for each audio file to obtain a set of sentences and their corresponding scores
         wav, labels = inputs
@@ -44,18 +44,20 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
         pabove_wer_target = ((wers >= wer_target).float().mean().unsqueeze(0))
         # calib_loss_table = torch.cat((calib_loss_table, pabove_wer_target), dim=0)
 
-        wers_table = torch.cat((wers_table, pabove_wer_target), dim=0)
-
+        wers_table = torch.cat((wers_table, wers.unsqueeze(0)), dim=0)
+        i += 1
         # if pabove_wer_target == 0:
         #     calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([0.])), dim=0)
         # else:
         #     calib_loss_table = torch.cat((calib_loss_table, torch.Tensor([1.])), dim=0)
 
+        if i == 100:
+            break
     # Step 8: Initailize array from 0 to 1 with step size of precision epsilon
     lambdas = torch.linspace(0.0, 1.0, int(1 / epsilon))
 
     # Step 9: Get optimal lhat
-    wers_mask = wers_table >= wer_target
+    wers_mask = wers_table > wer_target
     lhat = find_lhat(wers_mask=wers_mask, scores=scores_table, lambdas=lambdas, alpha=alpha, delta=delta, B=1)
     # Table must be sorted from lowest to highest loss
     # sorted_calib_loss_table, _ = torch.sort(calib_loss_table)
