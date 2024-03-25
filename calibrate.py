@@ -11,7 +11,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alpha=0.2, delta=0.1, num_beams=5, max_sentences=5):
 
     calib_loss_table = torch.Tensor([])
-    wers_table = torch.Tensor([])
+    wers_table = torch.Tensor([]).to(device)
     scores_table = torch.Tensor([]).to(device)
     i = 0
     for inputs in tqdm(data_loader):
@@ -38,7 +38,7 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
         # Step 4: Compute the WER array for each audio.
         # TO DO: references needs to be the labels
         decoded = processor.batch_decode(sentences, skip_special_tokens=True)
-        wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded])
+        wers = torch.Tensor([jiwer.wer(reference=labels, hypothesis=sent) for sent in decoded]).to(device)
 
         # Get proportion of conformal set sentences that have a higher WER than the target
         pabove_wer_target = ((wers >= wer_target).float().mean().unsqueeze(0))
@@ -58,6 +58,7 @@ def calibrate(model, processor, data_loader, wer_target=0.2, epsilon=0.0001, alp
 
     # Step 9: Get optimal lhat
     wers_mask = wers_table > wer_target
+    wers_mask = wers_mask.to(device)
     lhat = find_lhat(wers_mask=wers_mask, scores=scores_table, lambdas=lambdas, alpha=alpha, delta=delta, B=1)
     # Table must be sorted from lowest to highest loss
     # sorted_calib_loss_table, _ = torch.sort(calib_loss_table)
