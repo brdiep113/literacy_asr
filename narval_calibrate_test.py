@@ -27,6 +27,7 @@ if __name__ == "__main__":
     parser.add_argument("-b", "--beams", metavar='N', type=int, nargs='?', help="Number of beams")
     parser.add_argument("-s", "--sentences", metavar='N', type=int, nargs='?', help="Number of sentences")
     parser.add_argument("-w", "--wer", type=float, nargs='?', help="Target Word-Error Rate")
+    parser.add_argument("-a", "--alpha", type=float, nargs='?', help="Alpha")
 
     args = parser.parse_args()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -63,7 +64,7 @@ if __name__ == "__main__":
                      data_loader=valid_set,
                      wer_target=args.wer,
                      epsilon=0.0001,
-                     alpha=0.2,
+                     alpha=args.alpha,
                      delta=0.1,
                      num_beams=args.beams,
                      max_sentences=args.sentences

@@ -52,11 +52,11 @@ def get_rhat(wers_mask, scores, lambd, device):
     # This is equivalent to finding the first index where we find a sentence above WER target
     # and setting all sets after it to also be above WER target
     first_above_wer = (wers_mask.float()).argmax(dim=1).to(device)
-    sets_above_wer = torch.arange(wers_mask.size(1)).unsqueeze(0) >= first_above_wer.unsqueeze(1)
+    sets_above_wer = torch.arange(wers_mask.size(1)).unsqueeze(0).to(device) >= first_above_wer.unsqueeze(1)
 
     # Find if sets containing just the number of sentences such that their cumulative score >= lambda
     # also contain a sentence above the WER target
-    contains_above_wer = sets_above_wer[torch.arange(sets_above_wer.size(0)), num_sentences]
+    contains_above_wer = sets_above_wer[torch.arange(sets_above_wer.size(0)).to(device), num_sentences]
 
     # rhat is the mean loss across all samples
     rhat = contains_above_wer.float().sum() / n
