@@ -7,6 +7,35 @@ def get_lhat(calib_loss_table, lambdas, alpha, B=1):
     lhat_idx = max(np.argmax(((n/(n+1)) * rhat + B/(n+1) ) >= alpha) - 1, 0) # Can't be -1.
     return lambdas[lhat_idx]
 
+
+def build_calib_loss_table(wers, wer_target, scores, lambdas, device):
+    # Get number of samples in calibration
+    n = scores.shape[0]
+    
+    # Get cumulative scores of sentences
+    cum_scores = torch.cumsum(scores, dim=1).to(device=device)
+
+    # Find all sets that necessarily include a sentence with WER above target
+    wers_mask = (wers >= wer_target).to(device)
+
+    # Note since if a sentence is found to be above the WER target, all sets including that
+    # sentence will also necessarily include a sentence above WER target
+    # This is equivalent to finding the first index where we find a sentence above WER target
+    # and setting all sets after it to also be above WER target
+    first_above_wer = (wers_mask.float()).argmax(dim=1).to(device)
+    sets_above_wer = torch.arange(wers_mask.size(1)).unsqueeze(0) >= first_above_wer.unsqueeze(1)
+
+    loss_table = torch.zeros(n, len(lambdas)).to(device)
+    for l in range(lambdas):
+        # Find if sets containing just the number of sentences such that their cumulative score >= lambda
+        # also contain a sentence above the WER target
+        num_sentences = (cum_scores >= l).float().argmax(dim=1).to(device=device)
+        contains_above_wer = sets_above_wer[torch.arange(sets_above_wer.size(0)), num_sentences]
+        loss_table[:, l] = contains_above_wer
+    
+    return loss_table
+
+
 def get_rhat(wers_mask, scores, lambd, device):
     # Get number of samples in calibration
     n = scores.shape[0]
